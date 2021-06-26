@@ -34,8 +34,6 @@ def load_masters(request):
 def load_workschedule(request):
     master_id = request.GET.get('master_id')
     chosen_master = Master.objects.get(pk=master_id)
-    print(chosen_master)
     work_schedule_parts = chosen_master.work_schedule_parts.all()
-    print(work_schedule_parts)
     return JsonResponse(list(work_schedule_parts.values('weekday', 'appointment_time')), safe=False)
 

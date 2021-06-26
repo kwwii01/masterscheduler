@@ -12,6 +12,7 @@
 <script>
   $(function () {
     $("#id_appointment_date").prop("disabled",true);
+    $("#id_appointment_date").attr("autocomplete","off");
   });
 </script>
 <script>
@@ -42,8 +43,10 @@
             success: function (data) {
                 console.log(data);
                 var excludedDays = [];
+                var allowedTimes = [];
                 data.forEach(function (work_schedule_part) {
                     excludedDays.push(work_schedule_part.weekday);
+                    allowedTimes.push(work_schedule_part.appointment_time);
                 });
                 function disabledWeekdays(date) {
                     var day = date.getDay();
@@ -55,7 +58,10 @@
                 }
                 $("#id_appointment_date").datetimepicker({
                   format: 'd/m/Y H:i',
-                  beforeShowDay: disabledWeekdays
+                  beforeShowDay: disabledWeekdays,
+                  allowTimes: allowedTimes,
+                  minDate: 0,
+                  minTime: 0
                 });
                 $("#id_appointment_date").prop("disabled",false);
             }
