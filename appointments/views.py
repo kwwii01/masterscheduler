@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.http import JsonResponse
 
-from .models import Appointment, Service
+from .models import Appointment, Service, Master
 from .forms import AppointmentForm
 
 
@@ -29,4 +29,13 @@ def load_masters(request):
     chosen_service = Service.objects.get(pk=service_id)
     masters = chosen_service.masters.all()
     return render(request, 'appointments/masters_dropdown_list_options.html', {'masters': masters})
+
+
+def load_workschedule(request):
+    master_id = request.GET.get('master_id')
+    chosen_master = Master.objects.get(pk=master_id)
+    print(chosen_master)
+    work_schedule_parts = chosen_master.work_schedule_parts.all()
+    print(work_schedule_parts)
+    return JsonResponse(list(work_schedule_parts.values('weekday', 'appointment_time')), safe=False)
 

@@ -1,4 +1,5 @@
-<form method="post" id="appointmentForm" data-masters-url="{% url 'appointments:ajax_load_masters' %}">
+<form method="post" id="appointmentForm" data-masters-url="{% url 'appointments:ajax_load_masters' %}"
+    data-workschedule-url="{% url 'appointments:ajax_load_workschedule' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit">
@@ -10,9 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js" integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script>
 <script>
   $(function () {
-    $("#id_appointment_date").datetimepicker({
-      format: 'd/m/Y H:i',
-    });
+    $("#id_appointment_date").prop("disabled",true);
   });
 </script>
 <script>
@@ -27,6 +26,38 @@
             },
             success: function (data) {   // `data` is the return of the `load_cities` view function
                 $("#id_master").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+
+    $("#id_master").change(function () {
+        const url = $("#appointmentForm").attr("data-workschedule-url");
+        const masterId = $(this).val();
+
+        $.ajax({
+            url: url,
+            data: {
+                'master_id': masterId
+            },
+            success: function (data) {
+                console.log(data);
+                var excludedDays = [];
+                data.forEach(function (work_schedule_part) {
+                    excludedDays.push(work_schedule_part.weekday);
+                });
+                function disabledWeekdays(date) {
+                    var day = date.getDay();
+                    if (excludedDays.includes(day)) {
+                        return [true] ;
+                    } else {
+                        return [false] ;
+                    }
+                }
+                $("#id_appointment_date").datetimepicker({
+                  format: 'd/m/Y H:i',
+                  beforeShowDay: disabledWeekdays
+                });
+                $("#id_appointment_date").prop("disabled",false);
             }
         });
     });

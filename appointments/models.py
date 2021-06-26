@@ -3,13 +3,13 @@ from django.contrib.auth.models import User
 
 
 class WorkSchedulePart(models.Model):
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
+    MONDAY = 1
+    TUESDAY = 2
+    WEDNESDAY = 3
+    THURSDAY = 4
+    FRIDAY = 5
+    SATURDAY = 6
+    SUNDAY = 0
     WEEKDAY_CHOICES = [
         (MONDAY, 'Monday'),
         (TUESDAY, 'Tuesday'),
@@ -32,7 +32,7 @@ class WorkSchedulePart(models.Model):
 
 class Master(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    work_schedule_parts = models.ManyToManyField(WorkSchedulePart, null=True)
+    work_schedule_parts = models.ManyToManyField(WorkSchedulePart)
 
     def __str__(self):
         return self.user.username
