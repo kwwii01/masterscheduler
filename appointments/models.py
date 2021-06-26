@@ -71,5 +71,5 @@ class Appointment(models.Model):
     )
 
     def __str__(self):
-        return self.service.__str__()
+        return self.service.__str__() + self.appointment_date + self.master.user.username
 

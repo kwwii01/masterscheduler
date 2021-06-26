@@ -32,6 +32,7 @@
     });
 
     $("#id_master").change(function () {
+        $("#id_appointment_date").val('');
         const url = $("#appointmentForm").attr("data-workschedule-url");
         const masterId = $(this).val();
 
@@ -41,7 +42,6 @@
                 'master_id': masterId
             },
             success: function (data) {
-                console.log(data);
                 var excludedDays = [];
                 var allowedTimes = [];
                 data.forEach(function (work_schedule_part) {
@@ -64,6 +64,9 @@
                   minTime: 0
                 });
                 $("#id_appointment_date").prop("disabled",false);
+            },
+            error: function(xhr, status, error) {
+                $("#id_appointment_date").prop("disabled",true);
             }
         });
     });
