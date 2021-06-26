@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for master in masters %}
+<option value="{{ master.pk }}">{{ master.user.username }}</option>
+{% endfor %}

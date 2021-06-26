@@ -1,0 +1,11 @@
+<h2>Register</h2>
+{% for message in messages %}
+    <p>{{message}}</p>
+{% endfor %}
+{{form.errors}}
+<form method="post" action="">
+    {% csrf_token %}
+    {{form.as_p}}
+
+    <input type="submit" name="Create User">
+</form>

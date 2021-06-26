@@ -1,0 +1,33 @@
+<form method="post" id="appointmentForm" data-masters-url="{% url 'appointments:ajax_load_masters' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+<p id="test_p"></p>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<!-- XDSoft DateTimePicker -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.min.css" integrity="sha256-DOS9W6NR+NFe1fUhEE0PGKY/fubbUCnOfTje2JMDw3Y=" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.min.js" integrity="sha256-FEqEelWI3WouFOo2VWP/uJfs1y8KJ++FLh2Lbqc8SJk=" crossorigin="anonymous"></script>
+<script>
+  $(function () {
+    $("#id_appointment_date").datetimepicker({
+      format: 'd/m/Y H:i',
+    });
+  });
+</script>
+<script>
+    $("#id_service").change(function () {
+        const url = $("#appointmentForm").attr("data-masters-url");  // get the url of the `load_cities` view
+        const serviceId = $(this).val();  // get the selected country ID from the HTML input
+
+        $.ajax({                       // initialize an AJAX request
+            url: url,                    // set the url of the request (= /persons/ajax/load-cities/ )
+            data: {
+                'service_id': serviceId       // add the country id to the GET parameters
+            },
+            success: function (data) {   // `data` is the return of the `load_cities` view function
+                $("#id_master").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>

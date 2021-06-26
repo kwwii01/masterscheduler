@@ -1,0 +1,11 @@
+{% for message in messages %}
+    <p>{{message}}</p>
+{% endfor %}
+{% if user.is_authenticated %}
+    Welcome, {{user.username}}
+    <a href="/logout/">Log out</a>
+{% else %}
+    You're not welcome here
+    <p><a href="/register/">Create account</a></p>
+    <p><a href="/login/">Log in</a></p>
+{% endif %}
