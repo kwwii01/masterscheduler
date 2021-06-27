@@ -14,7 +14,12 @@ def convert_day_format(day):
         return day + 1
 
 
-# @login_required('appointment:index')
+@login_required
+def index(request):
+    appointments = request.user.appointments_as_client.all()
+    return render(request, 'appointments/index.html', {'appointments': appointments})
+
+
 def create_appointment(request):
     form = AppointmentForm()
     if request.method == 'POST':
@@ -55,4 +60,3 @@ def load_workschedule(request):
     master_id = request.GET.get('master_id')
     chosen_master = Master.objects.get(pk=master_id)
     return JsonResponse(chosen_master.generate_dict())
-

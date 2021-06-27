@@ -4,6 +4,7 @@ from . import views
 app_name = 'appointments'
 
 urlpatterns = [
+    path('', views.index, name='index'),
     path('create/', views.create_appointment, name='create'),
 
     path('ajax/load-masters/', views.load_masters, name='ajax_load_masters'),
