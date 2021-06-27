@@ -1,3 +1,6 @@
+{% for message in messages %}
+{{ message }}
+{% endfor %}
 <form method="post" id="appointmentForm" data-masters-url="{% url 'appointments:ajax_load_masters' %}"
     data-workschedule-url="{% url 'appointments:ajax_load_workschedule' %}">
     {% csrf_token %}
@@ -42,12 +45,13 @@
                 'master_id': masterId
             },
             success: function (data) {
+                console.log(typeof(data));
                 var excludedDays = [];
                 var allowedTimes = [];
-                data.forEach(function (work_schedule_part) {
-                    excludedDays.push(work_schedule_part.weekday);
-                    allowedTimes.push(work_schedule_part.appointment_time);
-                });
+                for (const key in data) {
+                    excludedDays.push(parseInt(key));
+                }
+                console.log(excludedDays);
                 function disabledWeekdays(date) {
                     var day = date.getDay();
                     if (excludedDays.includes(day)) {
@@ -59,9 +63,13 @@
                 $("#id_appointment_date").datetimepicker({
                   format: 'd/m/Y H:i',
                   beforeShowDay: disabledWeekdays,
-                  allowTimes: allowedTimes,
                   minDate: 0,
-                  minTime: 0
+                  defaultSelect: false,
+                  onSelectDate: function(ct, $i) {
+                      curr_day = ct.getDay();
+                      allowedTimes = data[curr_day.toString()];
+                      $('#id_appointment_date').datetimepicker('setOptions', {allowTimes: allowedTimes});
+                  }
                 });
                 $("#id_appointment_date").prop("disabled",false);
             },
