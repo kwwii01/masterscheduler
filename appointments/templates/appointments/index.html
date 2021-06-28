@@ -1,5 +1,10 @@
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+<a href="{% url 'appointments:filtered_by_status' appointment_status='CLD' %}">Canceled</a>
 {% for appointment in appointments %}
-<h3>{{ appointment.service }}</h3>
+<a href="{% url 'appointments:details' appointment_id=appointment.id %}"><h3>{{ appointment.service }}</h3></a>
 <p>{{ appointment.master }}</p>
 <p>{{ appointment.appointment_date }}</p>
+<p>{{ appointment.get_status_verbal_name }}</p>
 {% endfor %}

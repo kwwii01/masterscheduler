@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
+
 from .models import Appointment, Service, Master
 from .forms import AppointmentForm
 
@@ -20,6 +21,33 @@ def index(request):
     return render(request, 'appointments/index.html', {'appointments': appointments})
 
 
+@login_required
+def filtered_by_status(request, appointment_status):
+    appointments = Appointment.objects.filter(status=appointment_status)
+    return render(request, 'appointments/index.html', {'appointments': appointments})
+
+
+@login_required
+def details(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
+    if request.user != appointment.client and request.user != appointment.master.user:
+        messages.error(request, "You're not participating in this event.")
+        return redirect('appointments:index')
+    return render(request, 'appointments/details.html', {'appointment': appointment})
+
+
+@login_required
+def cancel_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id)
+    if request.user != appointment.client and request.user != appointment.master.user:
+        messages.error(request, "You're not permitted to do this.")
+        return redirect('appointments:index')
+    appointment.status = 'CLD'
+    appointment.save()
+    return redirect('appointments:details', appointment_id=appointment_id)
+
+
+@login_required
 def create_appointment(request):
     form = AppointmentForm()
     if request.method == 'POST':
@@ -39,13 +67,16 @@ def create_appointment(request):
             if appointment_date < timezone.now():
                 messages.warning(request, "Appointment can't be in the past, try another date and time.")
                 return redirect('appointments:create')
+            if request.user == master.user:
+                messages.warning(request, "You can't be master and client at the same time.")
+                return redirect('appointments:create')
             client = request.user
             status = 'PLD'
             new_appointment = Appointment(service=service, master=master, appointment_date=appointment_date,
                                           client=client, status=status)
             new_appointment.save()
             messages.success(request, 'Appointment successfully created!')
-            return redirect('home:index')
+            return redirect('appointments:index')
     return render(request, 'appointments/create_appointment.html', {'form': form})
 
 

@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<h3>{{ appointment.service }}</h3>
+<p>{{ appointment.master }}</p>
+<p>{{ appointment.appointment_date }}</p>
+<p>{{ appointment.get_status_verbal_name }}</p>
+{% if appointment.status == 'PLD' %}
+<a href="{% url 'appointments:cancel_appointment' appointment_id=appointment.id%}">Cancel appointment</a>
+{% endif %}

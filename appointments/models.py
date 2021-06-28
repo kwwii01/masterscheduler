@@ -88,6 +88,11 @@ class Appointment(models.Model):
         default=PLANNED,
     )
 
+    def get_status_verbal_name(self):
+        for pair in self.STATUS_CHOICES:
+            if pair[0] == self.status:
+                return pair[1]
+
     def __str__(self):
         return self.service.__str__() + ' ' + str(self.appointment_date) + ' ' + self.master.user.username
 
