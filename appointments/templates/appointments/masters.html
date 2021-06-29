@@ -1,0 +1,6 @@
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+{% for master in masters %}
+<p><a href="{% url 'appointments:master_view' master_id=master.id %}">{{ master }}</a></p>
+{% endfor %}

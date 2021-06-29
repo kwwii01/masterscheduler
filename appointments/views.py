@@ -1,4 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
@@ -34,6 +36,35 @@ def details(request, appointment_id):
         messages.error(request, "You're not participating in this event.")
         return redirect('appointments:index')
     return render(request, 'appointments/details.html', {'appointment': appointment})
+
+
+def masters(request):
+    masters_list = Master.objects.all()
+    return render(request, 'appointments/masters.html', {'masters': masters_list})
+
+
+@login_required
+def master_view(request, master_id):
+    master = get_object_or_404(Master, pk=master_id)
+    return render(request, 'appointments/master.html', {'master': master})
+
+
+@login_required
+def master_edit(request, master_id):
+    master = get_object_or_404(Master, pk=master_id)
+    try:
+        current_master = request.user.master
+    except Master.DoesNotExist:
+        messages.error(request, "You're not permitted to do this.")
+        return redirect('appointments:masters')
+    if current_master == master:
+        if request.method == 'POST':
+            pass
+        else:
+            return HttpResponse('Everything works')
+    else:
+        messages.error(request, "You're not permitted to do this.")
+        return redirect('appointments:masters')
 
 
 @login_required

@@ -1,0 +1,22 @@
+<p><strong>Name:</strong> {{ master.user.username }}</p>
+<p><strong>Services:</strong></p>
+<ul>
+    {% for service in master.service_set.all %}
+    <li>{{ service.service_type }}</li>
+    {% endfor %}
+</ul>
+<p><strong>Schedule:</strong></p>
+<ul>
+    {% for workday in master.work_days.all %}
+    <li>{{ workday }}
+        <ul>
+            {% for worktime in workday.worktimes.all %}
+            <li>{{ worktime }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+{% if user.master == master %}
+<a href="{% url 'appointments:master_edit' master.id %}">Edit</a>
+{% endif %}
