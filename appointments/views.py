@@ -1,12 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib import messages
 from django.utils import timezone
 
-from .models import Appointment, Service, Master
+from .models import Appointment, Service, Master, convert_to_verbal_dict, WorkDay, WorkTime
 from .forms import AppointmentForm
 
 
@@ -46,7 +45,8 @@ def masters(request):
 @login_required
 def master_view(request, master_id):
     master = get_object_or_404(Master, pk=master_id)
-    return render(request, 'appointments/master.html', {'master': master})
+    schedule_dict = convert_to_verbal_dict(master.generate_dict())
+    return render(request, 'appointments/master.html', {'master': master, 'schedule_dict': schedule_dict})
 
 
 @login_required
@@ -59,9 +59,20 @@ def master_edit(request, master_id):
         return redirect('appointments:masters')
     if current_master == master:
         if request.method == 'POST':
-            pass
+            master.service_set.clear()
+            master.work_days.clear()
+            services = request.POST.getlist('services')
+            workdays = request.POST.getlist('schedule')
+            for service in services:
+                master.service_set.add(Service.objects.get(pk=service))
+            for workday in workdays:
+                master.work_days.add(WorkDay.objects.get(pk=workday))
+            return redirect('appointments:master_view', master_id=master.id)
         else:
-            return HttpResponse('Everything works')
+            services = Service.objects.all()
+            created_workdays = WorkDay.objects.all()
+            return render(request, 'appointments/master_edit.html',
+                          {'services': services, 'master': master, 'created_workdays': created_workdays})
     else:
         messages.error(request, "You're not permitted to do this.")
         return redirect('appointments:masters')
@@ -122,3 +133,22 @@ def load_workschedule(request):
     master_id = request.GET.get('master_id')
     chosen_master = Master.objects.get(pk=master_id)
     return JsonResponse(chosen_master.generate_dict())
+
+
+@login_required
+def add_workday(request):
+    try:
+        current_master = request.user.master
+    except Master.DoesNotExist:
+        messages.error(request, "You're not permitted to do this.")
+        return redirect('appointments:masters')
+    weekday = request.GET.get('weekday')
+    time = request.GET.get('time')
+    new_workday = WorkDay(weekday=weekday)
+    new_worktime = WorkTime(time=time)
+    new_worktime.save()
+    new_workday.save()
+    new_workday.worktimes.add(new_worktime)
+    workdays = WorkDay.objects.all()
+    return render(request, 'appointments/workday_select_options.html', {'workdays': workdays, 'master': current_master})
+

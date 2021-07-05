@@ -15,4 +15,5 @@ urlpatterns = [
 
     path('ajax/load-masters/', views.load_masters, name='ajax_load_masters'),
     path('ajax/load-workschedule', views.load_workschedule, name='ajax_load_workschedule'),
+    path('ajax/add-workday/', views.add_workday, name='ajax_add_workday'),
 ]

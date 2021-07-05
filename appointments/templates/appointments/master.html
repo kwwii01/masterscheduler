@@ -1,3 +1,4 @@
+{% load appointments_extra %}
 <p><strong>Name:</strong> {{ master.user.username }}</p>
 <p><strong>Services:</strong></p>
 <ul>
@@ -7,11 +8,12 @@
 </ul>
 <p><strong>Schedule:</strong></p>
 <ul>
-    {% for workday in master.work_days.all %}
-    <li>{{ workday }}
+    {% for key in schedule_dict.keys %}
+    <li>{{ key }}
         <ul>
-            {% for worktime in workday.worktimes.all %}
-            <li>{{ worktime }}</li>
+            {% get_time_list schedule_dict key as time_list %}
+            {% for time in time_list %}
+            <li>{{ time }}</li>
             {% endfor %}
         </ul>
     </li>

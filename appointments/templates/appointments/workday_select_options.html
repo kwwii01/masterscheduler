@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% for workday in workdays %}
+{% if workday in master.work_days.all %}
+<option value="{{ workday.id }}" selected>{{ workday }}</option>
+{% else %}
+<option value="{{ workday.id }}" >{{ workday }}</option>
+{% endif %}
+{% endfor %}

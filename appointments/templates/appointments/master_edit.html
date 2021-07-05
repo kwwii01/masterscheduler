@@ -1,10 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% load static %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" href="{% static 'appointments/css/timepicker.min.css' %}" />
+<script src="{% static 'appointments/js/timepicker.min.js' %}"></script>
+<form action="{% url 'appointments:master_edit' master.id %}" method="post">
+    {% csrf_token %}
+    <label for="services_select">Services:</label>
+    <p><select name="services" id="services_select" size="{{ services.count }}" multiple>
+        {% for service in services %}
+        {% if service in master.service_set.all %}
+        <option value="{{ service.id }}" selected>{{ service.service_type }}</option>
+        {% else %}
+        <option value="{{ service.id }}" >{{ service.service_type }}</option>
+        {% endif %}
+        {% endfor %}
+    </select></p>
+    <label for="schedule-select">Schedule:</label>
+    <p><select name="schedule" id="schedule-select" size="{{ created_workdays.count }}" multiple>
+        {% for workday in created_workdays %}
+        {% if workday in master.work_days.all %}
+        <option value="{{ workday.id }}" selected>{{ workday }}</option>
+        {% else %}
+        <option value="{{ workday.id }}" >{{ workday }}</option>
+        {% endif %}
+        {% endfor %}
+    </select></p>
+    <p><select id="weekday_select">
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+        <option value="0">Sunday</option>
+    </select>
+    <input type="text" class="bs-timepicker" id="time_input" />
+    <button type="button" id="add_workday">Add</button></p>
+    <input type="submit" name="submit">
+</form>
+<script>
+    $(function () {
+        $('.bs-timepicker').timepicker();
+    });
+    $('#add_workday').click(function() {
+        $.get('{% url 'appointments:ajax_add_workday' %}',
+        {
+            weekday: $('#weekday_select').val(),
+            time: $('#time_input').val()
+        },
+        function(data, status) {
+            $('#schedule-select').html(data);
+        });
+    });
+</script>
