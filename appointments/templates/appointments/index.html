@@ -1,7 +1,15 @@
+{% load appointments_extra %}
 {% for message in messages %}
 {{ message }}
 {% endfor %}
 <a href="{% url 'appointments:filtered_by_status' appointment_status='CLD' %}">Canceled</a>
+<a href="{% url 'appointments:filtered_by_status' appointment_status='PLD' %}">Planned</a>
+<a href="{% url 'appointments:filtered_by_status' appointment_status='PDG' %}">Pending</a>
+<a href="{% url 'appointments:filtered_by_status' appointment_status='CPD' %}">Completed</a>
+{% authorize_master request.user as authorize_result %}
+{% if authorize_result %}
+    <p><a href="{% url 'appointments:index_as_master' %}">As master</a></p>
+{% endif %}
 {% for appointment in appointments %}
 <a href="{% url 'appointments:details' appointment_id=appointment.id %}"><h3>{{ appointment.service }}</h3></a>
 <p>{{ appointment.master }}</p>

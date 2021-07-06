@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.contrib import messages
@@ -16,6 +17,15 @@ def convert_day_format(day):
         return day + 1
 
 
+def get_master_or_none(user):
+    try:
+        current_master = user.master
+        return current_master
+    except Master.DoesNotExist:
+        return None
+
+
+
 @login_required
 def index(request):
     appointments = request.user.appointments_as_client.all()
@@ -23,8 +33,18 @@ def index(request):
 
 
 @login_required
+def index_as_master(request):
+    current_master = get_master_or_none(request.user)
+    if current_master is None:
+        messages.error(request, "You're not master")
+        return redirect('appointments:index')
+    appointments = request.user.master.appointments_as_master.all()
+    return render(request, 'appointments/index.html', {'appointments': appointments})
+
+
+@login_required
 def filtered_by_status(request, appointment_status):
-    appointments = Appointment.objects.filter(status=appointment_status)
+    appointments = request.user.appointments_as_client.filter(status=appointment_status)
     return render(request, 'appointments/index.html', {'appointments': appointments})
 
 
@@ -52,9 +72,8 @@ def master_view(request, master_id):
 @login_required
 def master_edit(request, master_id):
     master = get_object_or_404(Master, pk=master_id)
-    try:
-        current_master = request.user.master
-    except Master.DoesNotExist:
+    current_master = get_master_or_none(request.user)
+    if current_master is None:
         messages.error(request, "You're not permitted to do this.")
         return redirect('appointments:masters')
     if current_master == master:
@@ -137,9 +156,8 @@ def load_workschedule(request):
 
 @login_required
 def add_workday(request):
-    try:
-        current_master = request.user.master
-    except Master.DoesNotExist:
+    current_master = get_master_or_none(request.user)
+    if current_master is None:
         messages.error(request, "You're not permitted to do this.")
         return redirect('appointments:masters')
     weekday = request.GET.get('weekday')

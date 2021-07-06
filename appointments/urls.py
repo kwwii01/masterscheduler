@@ -5,6 +5,7 @@ app_name = 'appointments'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('as_master/', views.index_as_master, name='index_as_master'),
     path('create/', views.create_appointment, name='create'),
     path('masters/', views.masters, name='masters'),
     path('masters/<int:master_id>', views.master_view, name='master_view'),
